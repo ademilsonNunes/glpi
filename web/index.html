@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GLPI ITIL KPIs</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="/app/app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body data-glpi-ticket-url="http://www.glpi.sobelmaster.com.br:8085/glpi/site/front/ticket.form.php?id=">
+  <div class="bg-shape bg-shape-1"></div>
+  <div class="bg-shape bg-shape-2"></div>
+
+  <header class="topbar shell">
+    <div class="brand-wrap">
+      <img
+        src="/app/assets/logo-suprema.webp"
+        alt="Suprema"
+        class="brand-logo"
+        onerror="this.style.display='none'"
+      />
+      <div>
+      <div class="brand">GLPI KPIs</div>
+      <div class="brand-sub">Painel operacional ITIL v4</div>
+      </div>
+    </div>
+    <nav class="top-actions">
+      <button id="logoutBtn" class="btn ghost">Sair</button>
+    </nav>
+  </header>
+
+  <main class="container shell">
+    <div id="offlineBanner" class="banner hidden"></div>
+
+    <section id="loginView" class="card login-card">
+      <div class="login-logo-wrap">
+        <img
+          src="/app/assets/logo-suprema.webp"
+          alt="Suprema"
+          class="login-logo"
+          onerror="this.style.display='none'"
+        />
+      </div>
+      <h1>Acesso seguro</h1>
+      <form id="loginForm" class="form">
+        <label>Usuário
+          <input id="username" type="text" placeholder="" required />
+        </label>
+        <label>Senha
+          <input id="password" type="password" placeholder="" required />
+        </label>
+        <button type="submit" class="btn primary">Entrar</button>
+        <p class="hint">Credenciais definidas no servidor</p>
+      </form>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <div class="tabs">
+        <button class="tab active" data-view="dash">Dashboard</button>
+        <button class="tab" data-view="heatmap">Heatmap</button>
+        <button class="tab" data-view="reincidencia">Reincidência</button>
+        <button class="tab" data-view="score">Score Departamentos</button>
+        <button class="tab" data-view="frt">First Response</button>
+        <button class="tab" data-view="interacoes">Interações</button>
+        <button class="tab" data-view="problemas">Problemas ITIL</button>
+        <button class="tab" data-view="recorrentes">Recorrentes</button>
+        <button class="tab" data-view="ranking">Ranking Treinamento</button>
+        <button class="tab" data-view="base">Base</button>
+        <button class="tab" data-view="followups">Follow-ups</button>
+        <button class="tab" data-view="qualidade">Qualidade Abertura</button>
+      </div>
+
+      <div class="card filters">
+        <div class="filters-grid">
+          <label>De
+            <input id="fltSince" type="date" />
+          </label>
+          <label>Até
+            <input id="fltUntil" type="date" />
+          </label>
+          <label>Técnico
+            <input id="fltTech" type="text" placeholder="Nome do técnico" />
+          </label>
+          <label>Categoria
+            <input id="fltCategory" type="text" placeholder="Categoria" />
+          </label>
+          <label>Prioridade
+            <input id="fltPriority" type="text" placeholder="Alta, Média, etc." />
+          </label>
+        </div>
+        <div class="filters-actions">
+          <button id="btnApplyFilters" class="btn">Aplicar</button>
+          <button id="btnClearFilters" class="btn">Limpar filtros</button>
+          <span id="filtersInfo" class="hint"></span>
+        </div>
+      </div>
+
+      <div class="status">
+        <span id="statusMsg">Pronto</span>
+        <div class="status-actions">
+          <button id="btnValidate" class="btn">Validar Endpoints</button>
+          <button id="btnExport" class="btn">Exportar CSV</button>
+          <span id="lastUpdated" class="hint"></span>
+        </div>
+      </div>
+      <div id="endpointStatus" class="endpoint-status"></div>
+
+      <div id="view-dash" class="view">
+        <div class="card">
+          <h2>Painel Executivo ITIL v4</h2>
+          <div id="execSemaforos" class="grid"></div>
+          <div class="grid section-gap exec-split">
+            <div class="card" id="execTrendCard">
+              <h2>Tendência (4 semanas)</h2>
+              <div id="execTrend"></div>
+            </div>
+            <div class="card" id="execQueueCard">
+              <h2>Fila de ação imediata</h2>
+              <div id="execQueue"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card kpi">
+            <div class="kpi-title">Total abertos (semana)</div>
+            <div id="kpiAbertos" class="kpi-value">-</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi-title">Total fechados (semana)</div>
+            <div id="kpiFechados" class="kpi-value">-</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi-title">Compliance SLA (%)</div>
+            <div id="kpiSLA" class="kpi-value">-</div>
+          </div>
+        </div>
+
+        <div class="grid section-gap">
+          <div class="card kpi">
+            <div class="kpi-title">MTTR Mediano (útil)</div>
+            <div id="mttrMedianoUtil" class="kpi-value">-</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi-title">Outliers &gt; 100h úteis</div>
+            <div id="outliers" class="kpi-value">-</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi-title">Taxa de Resolução (%)</div>
+            <div id="taxaResolucao" class="kpi-value">-</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>SLA por Prioridade</h2>
+          <div id="slaPrioridade"></div>
+        </div>
+
+        <div class="card">
+          <h2>Evolução Semanal do SLA</h2>
+          <canvas id="weeklyChart" height="120"></canvas>
+        </div>
+
+        <div class="card">
+          <h2>Monitor SLA em Chamados Abertos (Horas Úteis)</h2>
+          <div class="grid">
+            <div class="card kpi">
+              <div class="kpi-title">Abertos sem solução</div>
+              <div id="kpiOpenTotal" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">Atendimento iniciado</div>
+              <div id="kpiOpenStarted" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">Sem atendimento</div>
+              <div id="kpiOpenNotStarted" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">Com SLA definido</div>
+              <div id="kpiOpenWithSla" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">Alerta (&gt;=70%)</div>
+              <div id="kpiOpenAlert70" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">SLA estourado</div>
+              <div id="kpiOpenOverdue" class="kpi-value">-</div>
+            </div>
+          </div>
+          <div id="openSlaRules" class="hint" style="margin:10px 0 12px 0;"></div>
+          <div id="openSlaAlerts"></div>
+        </div>
+
+        <div class="card">
+          <h2>KPIs por Técnico</h2>
+          <div class="grid">
+            <div class="card kpi">
+              <div class="kpi-title">Técnicos ativos</div>
+              <div id="kpiTechAtivos" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">MTTR mediano equipe (útil)</div>
+              <div id="kpiTechMttrEquipe" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">Compliance equipe (%)</div>
+              <div id="kpiTechComplianceEquipe" class="kpi-value">-</div>
+            </div>
+          </div>
+          <div class="grid section-gap">
+            <div class="card kpi">
+              <div class="kpi-title">Alertas 70% em abertos</div>
+              <div id="kpiTechAlertas70" class="kpi-value">-</div>
+            </div>
+            <div class="card kpi">
+              <div class="kpi-title">SLA estourado em abertos</div>
+              <div id="kpiTechSlaEstourado" class="kpi-value">-</div>
+            </div>
+          </div>
+          <div id="techKpiRules" class="hint" style="margin:10px 0 12px 0;"></div>
+          <div id="techKpiTable"></div>
+        </div>
+      </div>
+
+      <div id="view-heatmap" class="view hidden card">
+        <h2>Heatmap de Aberturas</h2>
+        <canvas id="heatmapChart" height="120"></canvas>
+      </div>
+
+      <div id="view-generic" class="view hidden">
+        <div class="card">
+          <div class="toolbar">
+            <button id="btnRefresh" class="btn">Atualizar</button>
+            <button id="btnExportGeneric" class="btn">Exportar CSV</button>
+          </div>
+          <div id="genericArea"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+</body>
+</html>

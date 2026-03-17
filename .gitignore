@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+/venv/
+env/
+.vscode/
+.idea/
+*.pyc
+*.pyo
+*.pyd

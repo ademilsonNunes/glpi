@@ -1,0 +1,12 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.0
+mysql-connector-python==9.1.0
+cachetools==5.3.2
+Jinja2==3.1.4
+# WeasyPrint is optional; it requires OS packages. Uncomment if available:
+# WeasyPrint==61.2
+paramiko==3.5.0
+sshtunnel==0.4.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.12

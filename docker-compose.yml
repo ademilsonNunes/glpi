@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    image: glpi-kpis:latest
+    container_name: glpi-kpis
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health?details=0')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
